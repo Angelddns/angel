@@ -1,0 +1,63 @@
+今日作业：
+1mv和cp的区别？
+mv:可以用于移动或者重命名文件或目录。移动文件：原文件被挪走，不再存在。
+
+重命名：直接改变原文件的名称，不改变其位置。被改名
+
+cp 用于复制文件或者目录，复制到新的位置，但是原来的还存在。
+1.cat和less的区别？
+cat（concatenate）命令用于连续显示整个文件的内容到标准输出（通常是终端）。`cat`命令通常用于查看较小的文本文件，因为它会一次性显示整个文件，对于查看大文件来说可能不太方便。
+less命令是对`more`命令的改进，提供了更强大的功能来查看文件内容。`less`不仅允许用户向前浏览文件（像`more`一样），还允许向后浏览。此外，`less`在查看文件时不需要读取整个文件，这使得打开大文件时更为高效。`less`命令还支持搜索文本等高级功能。
+2.使用rm删除一个有内容的文件夹会有提示吗？ 如果有如何删除？
+有，rm-rf-
+3.vim的三种模式是什么？
+普通模式，插入模式，命令行模式
+
+4.如何查看mysql的进程，找到之后杀死该进程
+ps -ef|grep python 查看python进程 
+kill -9 pid
+5.简述jieba分词的使用流程 
+pip install jieba
+
+import jieba
+6.常见分词方式
+Jieba/ltp/fasttext/…
+
+7LTP使用ltp对一句话分词
+
+from ltp import LTP
+Itp=LTP("LTP/tiny")
+sents=ltp.pipeline(["我爱北京天安门","他叫汤姆去拿外衣。","汤姆生病了"],tasks=["cws", "pog", "ner", "sr!", "dep", "sdp", "sdpg"])
+print(sents)
+print(sents.cws)#分词
+print(sents.pos)#词性
+print(sents.sdp)#语义依存分析树
+
+8NER实现方式
+
+ltp/stanfordcorenlp/stanza/
+
+9.怎么处理停用词
+import jieba
+text=“data.txt”
+file="stop words.txt"
+stop_words=[line.strop() for line in open(file,"r","utf8")] #获取停用词list
+with open() as f:
+	words=f.readlines()#获取停用词list
+f_w=open("newtext.txt","w",encoding="utf8")
+with open(text,"r",encoding="utf8") as f:
+	for line in f:
+		lines=jieba.lcut(line.strip())
+		for w in lines[:]:
+			if w in stop_words:
+				lines.remove(w)	
+		newline=" ".join(lines)	# 我 爱 北京 天安门
+		f_w.write(newline+"\n")
+f_w.close()
+
+
+7.你是公司的Linux服务的管理员， 你使用vi编辑/etc/demo文件时候？ 在命令模式下查询 “zs”字符串， 这个过程 使用哪2个命令
+**向前搜索**：在命令模式下，输入`/zs`然后按`Enter`键，这会从当前光标位置向文件末尾搜索第一个出现的"zs"字符串
+
+**向后搜索**：在命令模式下，输入`?zs`然后按`Enter`键，这会从当前光标位置向文件开头搜索第一个出现的"zs"字符串
+

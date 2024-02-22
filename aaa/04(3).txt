@@ -1,0 +1,259 @@
+
+mysql：数据库
+
+Mysql：关系型数据库
+
+RDBMS：关系型数据库管理系统
+	关系型客户端：
+	 	SQL：结构化查询语言
+	关系型服务端：服务	
+
+Mysql终端客户端操作：
+1、登录：msyql -u root -p
+2、库的管理
+	创建库：create database 库名 charset utf8;
+	查看所有的库：show databases;
+	查看当前使用库：select database();
+	查看建库语句：show create dabtase 库名；
+	删除库：drop database 库名；
+	使用库：use 库名；
+3、表的管理
+	创建表：create table 表名(字段/列 类型  约束.....)
+		类型：
+			varchar(255)
+			int()
+			float
+			decimal
+			enum
+			date
+		约束：
+			主键约束：primary key
+			自增约束：auto_increment
+			不为空  not null
+			唯一：unique
+			默认值：default
+	修改表：
+		修改字段/列 --不修改名
+			alter table 表名 modify 字段/列 类型 约束
+		修改字段/列  ---改名
+			alter table 表名 change 原名 新名 类型 约束
+		改表名：
+			alter table 表名 rename to 新表名
+		删除字段
+			alter table 表名 drop 字段/列  名
+		新增字段：
+			alter  table 表名 add 字段/列  名
+	删除表：
+		drop table 表名；
+	查询：
+		show tables;查询当前库中所有表
+		show create table 表名；查看当前建表语句
+		desc 表名；查询当前表结构
+4、数据操作
+	增：insert into 表名(指定对应列s) values（值）
+		insert into表名 values(值)
+				值得顺序应按照desc 表名中得顺序
+
+	删：delete from 表名 where 条件
+		逻辑：某些条件下，要区分逻辑和物理删除
+			逻辑删除：数据依旧存在，不展示，或者查询得时候，不查询这部分数据，给数据设置一个标识0或者1
+				在创建表得时候，给标识：isdelete  default = 0;0标识未删除，1标识删除
+			物理删除：
+				delete from 表名 where 条件
+
+	改：update 表名 set 需要得数据 where 条件
+
+	查：select * from 表名 where 条件；
+		首先创建一张表，数据稍微丰富。
+		create table student(id int primary key auto_increment,name varchar(30) not null,age int default 18,gender enum("男","女","保密") default "保密", height decimal(3,2),brithday date,isdelete int default 0);
+		添加数据：
+			insert into student(name,age,gender,height,brithday) values("蔡天翔",18,'男',1.88,"1999-08-08"),("赵神杰",19,'男',1.98,"2000-09-18"),("段誉",20,'女',1.78,"2012-08-08"),("潘雨涵",16,'女',1.78,"1999-08-08"),("郑永咦",22,'保密',2.02,"2000-12-04"),("张程浩",15,'保密',1.68,"1998-02-04");
+		查询：
+		
+	排序：order by
+		升序asc、降序desc：条件
+		不明确情况下，默认是升序。
+		正常查询：select * from student order by height desc（降序、不写默认asc）;
+	日期：
+		有大小概念，可以进行比较操作，或者排序操作。
+		date 1999-12-12  
+		datetime:1999-12-12 09:58:00
+		time 09:59:00
+
+	查询条件，多个查询条件：
+		查询未删除得学生信息（男生、保密） 按身高进行排序
+		select * from student where isdelete=0 and gender='保密' order by height desc;
+		查询未被删除得学生信息，按名字排序
+		select * from student where isdelete = 0 order by name;
+		查询所有学生信息，按身高进行排序，如果身高相同，按年龄或者生日进行排序
+		select * from student where isdelete =0 order by height desc,age asc;
+
+	分页：
+		在查询数据量过大得时候，需要进行分页查询并且返回。
+		limit start 开始位置  count 数量
+		select * from student;查询所有
+
+		def getdata(page,size):
+			start = (page-1)*size
+			sql = ”select * from student limit %d,%d;“ % (start,int(size))
+		查看从第一条开始，往后得三条数据
+		select * from student limit 0,3;  常量 --  变量
+		
+		页数一般从第一页开始1：
+		（页数-1）* 数量
+
+		第一页：0，3
+		第二页：3，3
+		第三页：6，3
+		第四页：9，3
+		
+		默认查询从第一条开始到后面三条数据
+		select * from student limit 3;
+		
+		offset 开始位置，  需要跳过得条数。
+		select * from student limit 3 offset 3;
+
+	查询：
+		select * from student;查询所有数，查询出所有列。
+		select name,age,gender from student;查询指定列
+	条件查询：
+		where  条件：
+		select * from student where brithday>'1999-12-12'；
+		比较运算符
+			=、>、<、大于等于>= 、小于等于<=、不等于：!= 或者：<>
+		逻辑运算符
+			and or not
+			查询一个身高大于1.88，且年龄大于等于18岁得成年人
+			select * from student where height>1.88 and age>=18;
+			or
+			查询性别为男，或者身高大于1.88
+			select * from student where gender='男' or height>1.88;
+			is not null
+			insert into student(name,age,gender,height,brithday) values("张哄恩",18,'保密',1.88,'2002-02-02'),("二郎杰",13,'保密',1.58,'2001-03-04');
+			select * from student where brithday is not null;
+		模糊查询
+			like  % 表示任意多个字符  _ 下划线 表示任意字符
+			查询姓张得小伙伴信息：
+				select * from student where name like '张%';  第一个字是张，后面任意匹配
+				select * from student where name like '%杰';匹配最后一个字，前面任意匹配
+
+			查询姓张的小伙伴信息，且名字是两个字的：
+				select * from student where name like '张__'
+			查询姓张的学生信息或者叫什么杰的学生信息
+				select * from student where name like '%杰' or name like '张%';
+
+		范围查询
+			id   height age  brithday
+			select * from student where age > 0 and age<18;
+			in 表示在一个非连续的范围内
+				查询年龄是18、19、15、22的学生信息
+				select * from student where age >= 13 and age<=18; 不符合
+				select * from student where age in(18,19,15,22);
+			between and 表示在一个连续的范围内
+					查询id是1-5的学生信息
+				select * from student where id between 1 and 5;
+				select * from student where age between 13 and 18;
+
+		空判断
+		 select * from student where brithday is not null
+
+	where 优先级：
+		小括号-->not --->比较运算符---->逻辑运算符
+						and要比or先运算，并且希望or先运算，需要添加（）
+	
+	聚合函数：又叫组函数，通常是对表中的数据进行统计和计算的。一般是结合group by使用。
+	
+	count:数量-表示计算查询数据的总函数   count(*)
+		select count(*) from student;
+		select count(*) from student where gender="男";
+	max:最大值
+		age height brithday 
+		查询年龄最大的学生信息
+		select max(age) from student;
+		查询性别为保密的学生，且年龄最大是多少
+		select max(age) from student where gender="保密";
+	min：最小值
+		select min(height) from student;
+	sum:求和，列求和
+		当前学生性别为女的年龄的综合
+		select sum(age) from student where gender=  "女";
+	avg :求列的平均数
+		性别为男的学生平均年龄
+		select avg(age) from student where gender = "男";
+	平均数的问题：需要按需考虑，是否对空列处理：
+		select sum(age)/count(*) from student where gender="男";计算空列
+		select avg(age) from student where gender = "男";不计算空列
+		insert into student(name,age,gender,brithday) values("娄金松",19,'男',"1991-03-06");
+
+	一个语句中：查询关于年龄的有关信息（聚合使用组合使用）
+		select max(age) as "最大年龄",min(age) as "最小年龄", sum(age) as "总年龄",avg(age) as "平均年龄" from student;
+	
+
+	分组：结果按照指定字段进行分组，字段中相等的分为一组
+	group by 列名 having 条件
+	列名：根据指定字段的值进行分组
+	稍等：having：用来过滤分组后的数据。
+	select gender from student group by gender;
+	看一下分组中的数据
+	group_concat:作为一个输出字段使用，分组之后，根据分组的结果，使用group_cancat来放置每一组中的某字段的值的集合
+	根据性别分组，并且展示分组的姓名
+	select gender as "性别分组",group_concat(name) as "小组成员" from student group by gender;
+
+	聚合函数，配合分组来使用的。
+		根据性别分组，统计平均年龄
+		select gender,group_concat(name),avg(age),max(age) from student group by gender ;
+
+		where 条件过滤
+		下面这行，是错误操作，where不能参与分组后的信息过滤
+		select gender,group_concat(name),avg(age),max(age) from student  where avg(age)>19 and age>18 group by gender;
+
+		想的到的结果是：平均年龄大于19的分组信息
+		
+	having 通常与group by 语句联合使用，用来过滤group by 返回的记录集。
+		having语句的存在，弥补了where关键字不能与聚合函数联合使用的不足
+		用性别分组，查询平均数年龄大于19的分组信息,或者使用一些聚合函数。
+		根据性别分组，查询分组人数大于2人，并且有哪些人
+		select gender,avg(age) from student group by gender having avg(age)>19;
+		select gender,count(*),group_concat(name) from student group by gender having count(*)>2;
+
+
+2、退出
+	exit
+	quit
+
+
+
+pymysql（python代码中实现）： 
+在python代码或者python项目中，实现数据库（mysql）操作，
+1、安装对应得插件，数据库得客户端：pymysql，mysqlclient
+	pip install pymysql
+2、首先需要建立与mysql服务端得连接。
+	from pymysql import connect
+
+	def testmysql(object):
+		pymysql客户端与服务端建立上连接
+		conn = connect(user="root",passwrod="123456",host="127.0.0.1",port=3306,database="2310A")
+		发送指令-----游标
+		cursor = conn.cursor()
+		接收服务端返回数据---游标
+		cursor.execute("sql")
+		cursor.close()
+		conn.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
